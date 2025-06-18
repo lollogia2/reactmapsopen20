@@ -34,17 +34,19 @@ function App() {
         for (const [category, count] of Object.entries(categories)) {
             const proportion = count / totalShops;
             if (proportion > 0) {
-                shannonIndex -= proportion * Math.log(proportion);
+                shannonIndex -= proportion * Math.log2(proportion);
             }
         }
 
-        // Normalizza l'indice (0-1) dividendo per ln(numero di categorie)
-        const maxPossibleIndex = Math.log(Object.keys(categories).length);
-        const normalizedIndex = maxPossibleIndex > 0 ? shannonIndex / maxPossibleIndex : 0;
 
+        const scoreInfo = getShannonScore(shannonIndex);
+        console.log(scoreInfo.color);
         return {
             shannonIndex: shannonIndex,
-            normalizedIndex: normalizedIndex,
+            score: scoreInfo.score,
+            scoreLevel: scoreInfo.level,
+            scoreColor: scoreInfo.color,
+            description: scoreInfo.description,
             categoryData: categoryData.sort((a, b) => b.count - a.count),
             totalCategories: Object.keys(categories).length,
             totalShops: totalShops
@@ -76,37 +78,62 @@ function App() {
             'tea': 'Alimentari',
             'water': 'Alimentari',
             'wine': 'Alimentari',
+            'nutrition_supplements': 'Alimentari',
 
             // Abbigliamento e Accessori
             'clothes': 'Abbigliamento',
-            'shoes': 'Abbigliamento',
             'fashion': 'Abbigliamento',
             'boutique': 'Abbigliamento',
+            'tailor': 'Abbigliamento',
+            'shoes': 'Abbigliamento',
             'bag': 'Abbigliamento',
-            'fabric': 'Abbigliamento',
+            'leather': 'Abbigliamento',
             'jewelry': 'Abbigliamento',
             'watches': 'Abbigliamento',
-            'leather': 'Abbigliamento',
-            'tailor': 'Abbigliamento',
             'underwear': 'Abbigliamento',
-            'variety_store': 'Abbigliamento',
+            'fabric': 'Abbigliamento',
+            'wool': 'Abbigliamento',
+            'second_hand': 'Abbigliamento',
+            'vintage': 'Abbigliamento',
+            'hat': 'Abbigliamento',
+            'wedding': 'Abbigliamento',
+            'fashion_accessories': 'Abbigliamento',
 
-            // Salute e Benessere
+            // Bellezza e Benessere
+            'beauty': 'Bellezza e Benessere',
+            'cosmetics': 'Bellezza e Benessere',
+            'hairdresser': 'Bellezza e Benessere',
+            'massage': 'Bellezza e Benessere',
+            'perfumery': 'Bellezza e Benessere',
+            'tattoo': 'Bellezza e Benessere',
+            'solarium': 'Bellezza e Benessere',
+            'nail': 'Bellezza e Benessere',
+            'spa': 'Bellezza e Benessere',
+
+            // Salute
             'pharmacy': 'Salute',
             'optician': 'Salute',
             'medical_supply': 'Salute',
             'hearing_aids': 'Salute',
             'herbalist': 'Salute',
-            'massage': 'Salute',
+            'chemist': 'Salute',
+
 
             // Servizi Personali
-            'hairdresser': 'Servizi Personali',
-            'beauty': 'Servizi Personali',
-            'cosmetics': 'Servizi Personali',
-            'perfumery': 'Servizi Personali',
-            'tattoo': 'Servizi Personali',
-            'dry_cleaning': 'Servizi Personali',
-            'laundry': 'Servizi Personali',
+            'laundry': 'Servizi',
+            'dry_cleaning': 'Servizi',
+            'travel_agency': 'Servizi',
+            'estate_agent': 'Servizi',
+            'funeral_directors': 'Servizi',
+            'employment_agency': 'Servizi',
+            'copyshop': 'Servizi',
+            'storage_rental': 'Servizi',
+            'locksmith': 'Servizi',
+            'glaziery': 'Servizi',
+            'pest_control': 'Servizi',
+            'cleaning': 'Servizi',
+            'party': 'Servizi',
+            'rental': 'Servizi',
 
             // Ristorazione
             'restaurant': 'Ristorazione',
@@ -114,6 +141,11 @@ function App() {
             'fast_food': 'Ristorazione',
             'ice_cream': 'Ristorazione',
             'pizza': 'Ristorazione',
+            'bar': 'Ristorazione',
+            'pub': 'Ristorazione',
+            'biergarten': 'Ristorazione',
+            'food_court': 'Ristorazione',
+            'bbq': 'Ristorazione',
 
             // Casa e Arredamento
             'furniture': 'Casa',
@@ -124,65 +156,118 @@ function App() {
             'curtain': 'Casa',
             'interior_decoration': 'Casa',
             'kitchen': 'Casa',
+            'bathroom': 'Casa',
             'lighting': 'Casa',
-            'locksmith': 'Casa',
             'tiles': 'Casa',
             'bathroom_furnishing': 'Casa',
+            'flooring': 'Casa',
             'bed': 'Casa',
             'window_blind': 'Casa',
+            'houseware': 'Casa',
+            'garden_furniture': 'Casa',
+            'antiques': 'Casa',
+            'keys': 'Casa',
+
 
             // Elettronica e Tecnologia
-            'electronics': 'Tecnologia',
-            'computer': 'Tecnologia',
-            'mobile_phone': 'Tecnologia',
-            'hifi': 'Tecnologia',
-            'radiotechnics': 'Tecnologia',
-            'video': 'Tecnologia',
-            'video_games': 'Tecnologia',
+            'electronics': 'Elettronica',
+            'computer': 'Elettronica',
+            'mobile_phone': 'Elettronica',
+            'telecommunication': 'Elettronica',
+            'hifi': 'Elettronica',
+            'video': 'Elettronica',
+            'camera': 'Elettronica',
+            'video_games': 'Elettronica',
+            'radiotechnics': 'Elettronica',
+            'electrical': 'Elettronica',
 
             // Cultura e Intrattenimento
             'books': 'Cultura',
+            'bookmaker': 'Cultura',
+            'stationery': 'Cultura',
+            'newsagent': 'Cultura',
+            'art': 'Cultura',
+            'craft': 'Cultura',
+            'frame': 'Cultura',
             'music': 'Cultura',
             'musical_instrument': 'Cultura',
-            'art': 'Cultura',
-            'gallery': 'Cultura',
             'photo': 'Cultura',
-            'frame': 'Cultura',
             'games': 'Cultura',
-            'hobby': 'Cultura',
-            'toys': 'Cultura',
 
             // Trasporti e Mobilità
-            'car': 'Mobilità',
-            'car_repair': 'Mobilità',
-            'car_parts': 'Mobilità',
-            'bicycle': 'Mobilità',
-            'motorcycle': 'Mobilità',
-            'tyres': 'Mobilità',
+            'car': 'Automotive',
+            'car_repair': 'Automotive',
+            'car_parts': 'Automotive',
+            'tyres': 'Automotive',
+            'motorcycle': 'Automotive',
+            'bicycle': 'Automotive',
+            'car_rental': 'Automotive',
+            'fuel': 'Automotive',
+            'charging_station': 'Automotive',
 
             // Servizi Finanziari
             'bank': 'Servizi Finanziari',
             'insurance': 'Servizi Finanziari',
             'money_lender': 'Servizi Finanziari',
             'pawnbroker': 'Servizi Finanziari',
+            'trade': 'Servizi Finanziari',
+            'atm': 'Servizi Finanziari',
+
+            // Sport e Tempo Libero
+            'sports': 'Sport',
+            'outdoor': 'Sport',
+            'hunting': 'Sport',
+            'fishing': 'Sport',
+            'golf': 'Sport',
+            'swimming_pool': 'Sport',
+            'fitness': 'Sport',
+            'martial_arts': 'Sport',
+            'ski': 'Sport',
+            'scuba_diving': 'Sport',
+            'boat': 'Sport',
+            'weapons': 'Sport',
+
+
+            // Animali
+            'pet': 'Animali',
+            'pet_grooming': 'Animali',
+            'veterinary': 'Animali',
+            'agrarian': 'Animali',
+
+            // Bambini e Giocattoli
+            'toys': 'Bambini',
+            'baby_goods': 'Bambini',
+            'children': 'Bambini',
+            'pram': 'Bambini',
+
+            //fiori
+            'florist': 'Fiori e Piante',
+            'garden_centre': 'Fiori e Piante',
+            'plant_nursery': 'Fiori e Piante',
+
+            // Centri Commerciali
+            'mall': 'Centri Commerciali',
+            'department_store': 'Centri Commerciali',
+            'variety_store': 'Centri Commerciali',
+            'general': 'Centri Commerciali',
+
+            // Regali e Souvenir
+            'gift': 'Regali',
+            'souvenir': 'Regali',
+            'trophy': 'Regali',
+            'balloon': 'Regali',
+            'pyrotechnics': 'Regali',
+
+            // tabaccheria
+            'lottery': 'Tabaccheria',
+            'tobacco': 'Tabaccheria',
+            'e-cigarette': 'Tabaccheria',
+
+            //chiese
+            'religion': 'Spiritualità',
 
             // Altri
-            'florist': 'Altri',
-            'garden_centre': 'Altri',
-            'pet': 'Altri',
-            'lottery': 'Altri',
-            'tobacco': 'Altri',
-            'newsagent': 'Altri',
-            'stationery': 'Altri',
-            'copyshop': 'Altri',
-            'funeral_directors': 'Altri',
-            'travel_agency': 'Altri',
             'ticket': 'Altri',
-            'chemist': 'Altri',
-            'erotic': 'Altri',
-            'gift': 'Altri',
-            'second_hand': 'Altri',
-            'antiques': 'Altri',
             'charity': 'Altri'
         };
 
@@ -190,28 +275,37 @@ function App() {
     };
 
     // Funzione per interpretare l'indice di diversità
-    const getDiversityInterpretation = (normalizedIndex) => {
-        if (normalizedIndex >= 0.8) return {
-            level: 'Molto Alta',
+    const getShannonScore = (shannonIndex) => {
+        if (shannonIndex > 3.5) return {
+            score: 5,
+            level: 'Eccellente',
             color: 'text-green-600',
-            description: 'Eccellente varietà commerciale'
+            description: 'Diversità urbana ottimale'
         };
-        if (normalizedIndex >= 0.6) return {
-            level: 'Alta',
+        if (shannonIndex > 3.0) return {
+            score: 4,
+            level: 'Molto Buona',
             color: 'text-blue-600',
-            description: 'Buona diversità commerciale'
+            description: 'Ottima varietà funzionale'
         };
-        if (normalizedIndex >= 0.4) return {
-            level: 'Media',
+        if (shannonIndex > 2.0) return {
+            score: 3,
+            level: 'Buona',
             color: 'text-yellow-600',
-            description: 'Diversità commerciale moderata'
+            description: 'Discreta diversità urbana'
         };
-        if (normalizedIndex >= 0.2) return {
-            level: 'Bassa',
+        if (shannonIndex > 0.9) return {
+            score: 2,
+            level: 'Sufficiente',
             color: 'text-orange-600',
-            description: 'Limitata varietà commerciale'
+            description: 'Limitata varietà funzionale'
         };
-        return {level: 'Molto Bassa', color: 'text-red-600', description: 'Scarsa diversità commerciale'};
+        return {
+            score: 1,
+            level: 'Insufficiente',
+            color: 'text-red-600',
+            description: 'Scarsa diversità urbana'
+        };
     };
 
 
@@ -234,7 +328,7 @@ function App() {
     };
 
     // Funzione per cercare i negozi usando Overpass API
-    const searchShops = async (lat, lon, street,city) => {
+    const searchShops = async (lat, lon, street, city) => {
         const overpassUrl = 'https://overpass-api.de/api/interpreter';
         console.log(lat, lon, street);
         const query = `
@@ -248,7 +342,6 @@ function App() {
         ););
       out center meta;
     `;
-
 
 
         const response = await fetch(overpassUrl, {
@@ -288,10 +381,23 @@ function App() {
                 lon = element.center.lon;
             }
 
+            // Determina il tipo di attività
+            let activityType = 'Attività';
+            if (tags.shop) {
+                activityType = tags.shop;
+            } else if (tags.amenity) {
+                activityType = tags.amenity;
+            } else if (tags.tourism) {
+                activityType = tags.tourism;
+            } else if (tags.leisure) {
+                activityType = tags.leisure;
+            }
+
+
             return {
                 id: element.id,
                 name: tags.name || 'Nome non disponibile',
-                shop: tags.shop || 'Negozio',
+                shop: activityType,
                 address: `${tags['addr:street'] || ''} ${tags['addr:housenumber'] || ''}`.trim(),
                 city: tags['addr:city'] || '',
                 postcode: tags['addr:postcode'] || '',
@@ -319,7 +425,7 @@ function App() {
             const streetInfo = await searchStreet(streetName, city);
 
             // 2. Cerca i negozi
-            const shopElements = await searchShops(streetInfo.lat, streetInfo.lon, streetName,city);
+            const shopElements = await searchShops(streetInfo.lat, streetInfo.lon, streetName, city);
 
             // 3. Processa i dati
             const processedShops = processShopData(shopElements);
@@ -348,35 +454,6 @@ function App() {
     // Funzione per aprire la mappa
     const openMap = (lat, lon) => {
         window.open(`https://www.openstreetmap.org/#map=18/${lat}/${lon}`, '_blank');
-    };
-
-    // Funzione per tradurre i tipi di negozio
-    const translateShopType = (shopType) => {
-        const translations = {
-            'supermarket': 'Supermercato',
-            'convenience': 'Minimarket',
-            'bakery': 'Panetteria',
-            'butcher': 'Macelleria',
-            'clothes': 'Abbigliamento',
-            'shoes': 'Calzature',
-            'pharmacy': 'Farmacia',
-            'hairdresser': 'Parrucchiere',
-            'restaurant': 'Ristorante',
-            'cafe': 'Bar/Caffè',
-            'beauty': 'Centro estetico',
-            'books': 'Libreria',
-            'electronics': 'Elettronica',
-            'furniture': 'Arredamento',
-            'hardware': 'Ferramenta',
-            'jewelry': 'Gioielleria',
-            'optician': 'Ottico',
-            'pet': 'Animali',
-            'toys': 'Giocattoli',
-            'bicycle': 'Biciclette',
-            'car': 'Auto',
-            'florist': 'Fioraio'
-        };
-        return translations[shopType] || shopType;
     };
 
     return (
@@ -466,8 +543,8 @@ function App() {
                                     <div className="text-2xl font-bold text-purple-600">
                                         {diversityIndex.shannonIndex.toFixed(3)}
                                     </div>
-                                    <div className="text-sm text-gray-500">
-                                        Normalizzato: {(diversityIndex.normalizedIndex * 100).toFixed(1)}%
+                                    <div className={`text-lg font-bold ${diversityIndex.scoreColor}`}>
+                                        Score: {diversityIndex.score}
                                     </div>
                                 </div>
 
@@ -491,11 +568,11 @@ function App() {
                                         Livello di Diversità
                                     </div>
                                     <div
-                                        className={`text-lg font-bold ${getDiversityInterpretation(diversityIndex.normalizedIndex).color}`}>
-                                        {getDiversityInterpretation(diversityIndex.normalizedIndex).level}
+                                        className={`text-lg font-bold ${diversityIndex.scoreColor}`}>
+                                        {diversityIndex.scoreLevel}
                                     </div>
                                     <div className="text-sm text-gray-600 mt-1">
-                                        {getDiversityInterpretation(diversityIndex.normalizedIndex).description}
+                                        {diversityIndex.description}
                                     </div>
                                 </div>
                             </div>
@@ -543,11 +620,8 @@ function App() {
                             <div className="w-full bg-gray-200 rounded-full h-3">
                                 <div
                                     className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                                    style={{width: `${diversityIndex.normalizedIndex * 100}%`}}
+                                    style={{width: `${(diversityIndex.score / 5) * 100}%`}}
                                 />
-                            </div>
-                            <div className="text-center mt-2 text-sm font-medium text-gray-700">
-                                {(diversityIndex.normalizedIndex * 100).toFixed(1)}% della massima diversità possibile
                             </div>
                         </div>
 
@@ -588,7 +662,7 @@ function App() {
                                                 {shop.name}
                                             </h3>
                                             <p className="text-sm text-fuchsia-800 font-medium">
-                                                {translateShopType(shop.shop)}
+                                                {shop.shop}
                                             </p>
 
                                         </div>
