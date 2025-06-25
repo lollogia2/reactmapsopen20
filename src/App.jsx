@@ -350,7 +350,7 @@ function App() {
         way(area.cityArea)["name"="${street}"]["highway"]->.strada;
         (
         node["shop"](around.strada:20)(area.cityArea);
-        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank|post_office|place_of_worship|ice_cream|theatre|cinema|library|veterinary|dentist|clinic)$"](around.strada:20)(area.torinoCity);
+        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank|post_office|place_of_worship|ice_cream|theatre|cinema|library|veterinary|dentist|clinic)$"](around.strada:20)(area.cityArea);
         ););
       out center meta;
     `;
