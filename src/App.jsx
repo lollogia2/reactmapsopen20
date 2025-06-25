@@ -117,6 +117,8 @@ function App() {
             'hearing_aids': 'Salute',
             'herbalist': 'Salute',
             'chemist': 'Salute',
+            'dentist':'Salute',
+            'clinic':'Salute',
 
 
             // Servizi Personali
@@ -265,6 +267,13 @@ function App() {
 
             //chiese
             'religion': 'Spiritualità',
+            'place_of_worship': 'Spiritualità',
+
+            //chiese
+            'cinema': 'Cinema e Teatri',
+            'theatre': 'Cinema e Teatri',
+
+            'post_office':'Ufficio Postale',
 
             // Altri
             'ticket': 'Altri',
@@ -334,11 +343,14 @@ function App() {
         const query = `
       [out:json][timeout:25];
       (
-        area["name"="${city}"]["admin_level"="8"]->.torinoCity;
-        way(area.torinoCity)["name"="${street}"]["highway"]->.strada;
         (
-        node["shop"](around.strada:20)(area.torinoCity);
-        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank)$"](around.strada:20)(area.torinoCity);
+          area["boundary"="administrative"]["admin_level"="8"]["name"="${city}"];
+          area["boundary"="administrative"]["admin_level"="8"]["name:en"="${city}"];
+        )->.cityArea;
+        way(area.cityArea)["name"="${street}"]["highway"]->.strada;
+        (
+        node["shop"](around.strada:20)(area.cityArea);
+        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank|post_office|place_of_worship|ice_cream|theatre|cinema|library|veterinary|dentist|clinic)$"](around.strada:20)(area.torinoCity);
         ););
       out center meta;
     `;
@@ -495,7 +507,7 @@ function App() {
                                 type="text"
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
-                                placeholder="es. Milano"
+                                placeholder="es. Torino"
                                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                             />
                         </div>
