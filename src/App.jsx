@@ -112,8 +112,6 @@ function App() {
 
             // Salute
             'pharmacy': 'Salute',
-            'dentist': 'Salute',
-            'clinic': 'Salute',
             'optician': 'Salute',
             'medical_supply': 'Salute',
             'hearing_aids': 'Salute',
@@ -195,7 +193,6 @@ function App() {
             'musical_instrument': 'Cultura',
             'photo': 'Cultura',
             'games': 'Cultura',
-            'library':'Cultura',
 
             // Trasporti e Mobilità
             'car': 'Automotive',
@@ -268,14 +265,6 @@ function App() {
 
             //chiese
             'religion': 'Spiritualità',
-            'place_of_worship': 'Spiritualità',
-
-            //poste
-            'post_office':'Ufficio Postale',
-
-            //cinema e teatri
-            'cinema':'Cinema e teatri',
-            'theatre':'Cinema e teatri',
 
             // Altri
             'ticket': 'Altri',
@@ -345,14 +334,11 @@ function App() {
         const query = `
       [out:json][timeout:25];
       (
+        area["name"="${city}"]["admin_level"="8"]->.torinoCity;
+        way(area.torinoCity)["name"="${street}"]["highway"]->.strada;
         (
-            area["boundary"="administrative"]["admin_level"="8"]["name"="${city}"];
-            area["boundary"="administrative"]["admin_level"="8"]["name:en"="${city}"];
-    )->.targetCity;
-        way(area.targetCity)["name"="${street}"]["highway"]->.strada;
-        (
-        node["shop"](around.strada:20)(area.targetCity);
-        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank|post_office|place_of_worship|ice_cream|theatre|cinema|library|veterinary|dentist|clinic)$"](around.strada:20)(area.torinoCity);
+        node["shop"](around.strada:20)(area.torinoCity);
+        node["amenity"~"^(restaurant|cafe|bar|pharmacy|bank)$"](around.strada:20)(area.torinoCity);
         ););
       out center meta;
     `;
@@ -509,7 +495,7 @@ function App() {
                                 type="text"
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
-                                placeholder="es. Torino"
+                                placeholder="es. Milano"
                                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                             />
                         </div>
